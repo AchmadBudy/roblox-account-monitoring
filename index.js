@@ -45,6 +45,7 @@ const USER_PRESENCE_TYPE = {
     3: "InStudio",
     4: "InGameAndStudio"
 }
+const TIMEZONE = 'Asia/Jakarta';
 
 const checkUserPresence = async () => {
     try {
@@ -64,11 +65,12 @@ const checkUserPresence = async () => {
                 let status = USER_PRESENCE_TYPE[userPresence.userPresenceType] || 'Unknown';
                 const user = userData.find(u => u.userId === userPresence.userId);
                 const username = user ? user.username : 'Unknown';
+                const date = new Date().toLocaleString('en-US', { timeZone: TIMEZONE });
                 saveHistory({
                     userId: userPresence.userId,
                     username: username,
                     status: status,
-                    timestamp: new Date().toISOString()
+                    timestamp: date
                 });
             }
         });
