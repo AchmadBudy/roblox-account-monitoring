@@ -50,7 +50,6 @@ const TIMEZONE = 'Asia/Jakarta';
 
 const checkUserPresence = async () => {
     try {
-        console.log("Memeriksa kehadiran pengguna...");
         const response = await axios.post(ROBLOX_API_URL, {
             userIds: USER_ID_TO_MONITOR
         }, {
@@ -81,6 +80,7 @@ const checkUserPresence = async () => {
     }
 }
 
+console.log("Memeriksa kehadiran pengguna...");
 // jalankan sekarang
 checkUserPresence();
 // Jalankan periksa kehadiran pengguna setiap CHECK_INTERVAL_MS
