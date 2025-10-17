@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Account Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .online {
+            color: #27ae60;
+        }
+
+        .offline {
+            color: #e74c3c;
+        }
+
+        .ingame {
+            color: #3498db;
+        }
+
+        .instudio {
+            color: #f39c12;
+        }
+
+        .accounts-container {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .account-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #ddd;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .account-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            transition: left 0.8s ease;
+        }
+
+        .account-card:hover::before {
+            left: 100%;
+        }
+
+        .account-card.online {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #ffffff 0%, #e8f5e8 100%);
+        }
+
+        .account-card.offline {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #ffffff 0%, #ffeaea 100%);
+        }
+
+        .account-card.ingame {
+            border-left-color: #3498db;
+            background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
+        }
+
+        .account-card.instudio {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #ffffff 0%, #fff3e0 100%);
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .username {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-online {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .status-offline {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .status-ingame {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .status-instudio {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .timeline {
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            border-radius: 1px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 50px;
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .timeline-item:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .timeline-item:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .timeline-item:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 14px;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px currentColor;
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .timeline-time {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .timeline-status {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ddd;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+
+        .show-more-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .show-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-item.hidden {
+            display: none;
+        }
+
+        .timeline-item.show-more {
+            animation: fadeInUp 0.3s ease forwards;
+        }
+
+        .filter-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-title {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-search {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .account-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .refresh-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .filter-buttons {
+                justify-content: center;
+            }
+
+            .filter-search {
+                flex-direction: column;
+            }
+
+            .filter-input,
+            .filter-select {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Roblox Account Monitor</h1>
+            <p>Monitor status multiple akun Roblox secara real-time</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number online" id="onlineCount">0</div>
+                <div class="stat-label">Online</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number ingame" id="ingameCount">0</div>
+                <div class="stat-label">In Game</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number instudio" id="studioCount">0</div>
+                <div class="stat-label">In Studio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number offline" id="offlineCount">0</div>
+                <div class="stat-label">Offline</div>
+            </div>
+        </div>
+
+        <div class="filter-container">
+            <div class="filter-section">
+                <h3 class="filter-title">🔍 Filter Status</h3>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-status="all">Semua Status</button>
+                    <button class="filter-btn" data-status="online">Online</button>
+                    <button class="filter-btn" data-status="ingame">In Game</button>
+                    <button class="filter-btn" data-status="instudio">In Studio</button>
+                    <button class="filter-btn" data-status="offline">Offline</button>
+                </div>
+            </div>
+            <div class="filter-section">
+                <h3 class="filter-title">👤 Filter Akun</h3>
+                <div class="filter-search">
+                    <input type="text" id="usernameFilter" placeholder="Cari username..." class="filter-input">
+                    <select id="accountSelect" class="filter-select">
+                        <option value="all">Semua Akun</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="accounts-container">
+            <h2 class="section-title">📊 Status Akun</h2>
+            <div id="accountsList">
+                <div class="loading">Memuat data akun...</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="refreshData()" title="Refresh Data">
+        🔄
+    </button>
+
+    <script>
+        let historyData = [];
+        let refreshInterval;
+        let currentFilter = {
+            status: 'all',
+            username: '',
+            selectedAccount: 'all'
+        };
+        let filteredData = [];
+
+        // Fungsi untuk memetakan status ke kelas CSS
+        function getStatusClass(status) {
+            switch (status.toLowerCase()) {
+                case 'online': return 'online';
+                case 'offline': return 'offline';
+                case 'ingame': return 'ingame';
+                case 'instudio': return 'instudio';
+                case 'ingameandstudio': return 'ingame';
+                default: return 'offline';
+            }
+        }
+
+        // Fungsi untuk mendapatkan badge status
+        function getStatusBadge(status) {
+            const statusClass = getStatusClass(status);
+            return `status-${statusClass}`;
+        }
+
+        // Fungsi untuk memformat timestamp
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Fungsi untuk menghitung statistik
+        function calculateStats() {
+            const stats = {
+                online: 0,
+                ingame: 0,
+                instudio: 0,
+                offline: 0
+            };
+
+            historyData.forEach(user => {
+                if (user.history && user.history.length > 0) {
+                    const lastStatus = user.history[user.history.length - 1].status;
+                    switch (lastStatus.toLowerCase()) {
+                        case 'online':
+                            stats.online++;
+                            break;
+                        case 'ingame':
+                        case 'ingameandstudio':
+                            stats.ingame++;
+                            break;
+                        case 'instudio':
+                            stats.instudio++;
+                            break;
+                        case 'offline':
+                            stats.offline++;
+                            break;
+                    }
+                }
+            });
+
+            return stats;
+        }
+
+        // Fungsi untuk update tampilan statistik
+        function updateStats(stats) {
+            document.getElementById('onlineCount').textContent = stats.online;
+            document.getElementById('ingameCount').textContent = stats.ingame;
+            document.getElementById('studioCount').textContent = stats.instudio;
+            document.getElementById('offlineCount').textContent = stats.offline;
+        }
+
+        // Fungsi untuk toggle tampilan history
+        function toggleHistory(userIndex, totalHistory) {
+            const timeline = document.getElementById(`timeline-${userIndex}`);
+            const showMoreBtn = document.getElementById(`show-more-btn-${userIndex}`);
+            const user = filteredData[userIndex];
+            
+            if (!user || !user.history) return;
+            
+            // Cek apakah sedang menampilkan history tambahan
+            const isShowingMore = showMoreBtn.querySelector('.show-more-btn').textContent.includes('Sembunyikan');
+            
+            if (isShowingMore) {
+                // Sembunyikan history tambahan
+                const allItems = timeline.querySelectorAll('.timeline-item[data-timeline="' + userIndex + '"]');
+                allItems.forEach((item, index) => {
+                    if (index >= 5) {
+                        item.classList.add('hidden');
+                    }
+                });
+                showMoreBtn.querySelector('.show-more-btn').textContent = `Tampilkan ${totalHistory - 5} history sebelumnya`;
+            } else {
+                // Tampilkan semua history
+                const allItems = timeline.querySelectorAll('.timeline-item[data-timeline="' + userIndex + '"]');
+                allItems.forEach((item, index) => {
+                    if (index >= 5) {
+                        item.classList.remove('hidden');
+                        item.classList.add('show-more');
+                    }
+                });
+                showMoreBtn.querySelector('.show-more-btn').textContent = 'Sembunyikan history tambahan';
+            }
+        }
+
+        // Fungsi untuk render daftar akun
+        function renderAccounts() {
+            const accountsList = document.getElementById('accountsList');
+
+            if (!filteredData || filteredData.length === 0) {
+                accountsList.innerHTML = '<div class="no-results">Tidak ada akun yang sesuai dengan filter yang dipilih</div>';
+                return;
+            }
+
+            let html = '';
+            filteredData.forEach((user, index) => {
+                if (!user.history || user.history.length === 0) return;
+
+                const lastStatus = user.history[user.history.length - 1];
+                const statusClass = getStatusClass(lastStatus.status);
+                const statusBadge = getStatusBadge(lastStatus.status);
+                
+                // Hitung jumlah history yang tersedia
+                const totalHistory = user.history.length;
+                const showMoreAvailable = totalHistory > 5;
+
+                html += `
+                    <div class="account-card ${statusClass}">
+                        <div class="account-header">
+                            <div class="username">👤 ${user.username || 'Unknown'}</div>
+                            <div class="status-badge ${statusBadge}">${lastStatus.status}</div>
+                        </div>
+                        <div class="timeline" id="timeline-${index}">
+                            <div class="timeline-line"></div>
+                            ${user.history.slice().reverse().map((item, idx) => `
+                                <div class="timeline-item ${idx >= 5 ? 'hidden' : ''}" data-timeline="${index}">
+                                    <div class="timeline-dot ${getStatusClass(item.status)}"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-time">${formatTimestamp(item.timestamp)}</div>
+                                        <div class="timeline-status ${getStatusClass(item.status)}">${item.status}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            ${showMoreAvailable ? `
+                                <div class="timeline-item" id="show-more-btn-${index}">
+                                    <button class="show-more-btn" onclick="toggleHistory(${index}, ${totalHistory})">
+                                        Tampilkan ${totalHistory - 5} history sebelumnya
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            accountsList.innerHTML = html;
+        }
+
+        // Fungsi untuk apply filter
+        function applyFilters() {
+            filteredData = historyData.filter(user => {
+                if (!user.history || user.history.length === 0) return false;
+                
+                const lastStatus = user.history[user.history.length - 1].status.toLowerCase();
+                const username = (user.username || '').toLowerCase();
+                const searchTerm = currentFilter.username.toLowerCase();
+                
+                // Filter by status
+                const statusMatch = currentFilter.status === 'all' || 
+                    (currentFilter.status === 'ingame' && (lastStatus === 'ingame' || lastStatus === 'ingameandstudio')) ||
+                    lastStatus === currentFilter.status;
+                
+                // Filter by username search
+                const usernameMatch = searchTerm === '' || username.includes(searchTerm);
+                
+                // Filter by selected account
+                const accountMatch = currentFilter.selectedAccount === 'all' || 
+                    user.username === currentFilter.selectedAccount;
+                
+                return statusMatch && usernameMatch && accountMatch;
+            });
+            
+            renderAccounts();
+        }
+
+        // Fungsi untuk update dropdown select dengan daftar akun
+        function updateAccountSelect() {
+            const select = document.getElementById('accountSelect');
+            const currentValue = select.value;
+            
+            // Clear existing options kecuali "Semua Akun"
+            select.innerHTML = '<option value="all">Semua Akun</option>';
+            
+            // Tambahkan opsi untuk setiap username unik
+            const usernames = [...new Set(historyData.map(user => user.username).filter(Boolean))].sort();
+            usernames.forEach(username => {
+                const option = document.createElement('option');
+                option.value = username;
+                option.textContent = username;
+                select.appendChild(option);
+            });
+            
+            // Restore nilai sebelumnya jika masih valid
+            if (usernames.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        // Fungsi untuk fetch data dari server
+        async function fetchData() {
+            try {
+                const response = await fetch('/get-history');
+                const data = await response.json();
+                historyData = data;
+
+                // Update dropdown select dengan daftar akun
+                updateAccountSelect();
+
+                // Apply filter dan render
+                applyFilters();
+
+                const stats = calculateStats();
+                updateStats(stats);
+
+                console.log('Data berhasil dimuat');
+            } catch (error) {
+                console.error('Error mengambil data:', error);
+                document.getElementById('accountsList').innerHTML =
+                    '<div class="loading">Gagal memuat data. Silakan refresh halaman.</div>';
+            }
+        }
+
+        // Fungsi untuk refresh data
+        function refreshData() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            refreshBtn.style.transform = 'rotate(360deg)';
+
+            fetchData().then(() => {
+                setTimeout(() => {
+                    refreshBtn.style.transform = 'rotate(0deg)';
+                }, 500);
+            });
+        }
+
+        // Auto refresh setiap 30 detik
+        function startAutoRefresh() {
+            refreshInterval = setInterval(fetchData, 30000);
+        }
+
+        // Stop auto refresh
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchData();
+            startAutoRefresh();
+            
+            // Event listeners untuk filter status buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class dari semua buttons
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    // Add active class ke button yang diklik
+                    this.classList.add('active');
+                    
+                    // Update filter status
+                    currentFilter.status = this.dataset.status;
+                    applyFilters();
+                });
+            });
+            
+            // Event listener untuk username search input
+            document.getElementById('usernameFilter').addEventListener('input', function() {
+                currentFilter.username = this.value;
+                applyFilters();
+            });
+            
+            // Event listener untuk account select dropdown
+            document.getElementById('accountSelect').addEventListener('change', function() {
+                currentFilter.selectedAccount = this.value;
+                applyFilters();
+            });
+        });
+
+        // Stop auto refresh ketika tab tidak aktif
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                stopAutoRefresh();
+            } else {
+                fetchData();
+                startAutoRefresh();
+            }
+        });
+
+        // Keyboard shortcut untuk refresh (Ctrl+R atau F5)
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey && e.key === 'r') || e.key === 'F5') {
+                e.preventDefault();
+                refreshData();
+            }
+        });
+    </script>
+</body>
+
+</html>

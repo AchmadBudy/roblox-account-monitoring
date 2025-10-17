@@ -1,5 +1,6 @@
 import axios from 'axios';
 import fs from 'fs';
+import express from 'express';
 
 // Load user data from JSON file
 const userData = JSON.parse(fs.readFileSync('storage/users.json', 'utf8'));
@@ -88,3 +89,20 @@ setInterval(checkUserPresence, CHECK_INTERVAL_MS);
 
 
 
+const app = express();
+const port = 3000;
+
+// Route untuk mendapatkan riwayat kehadiran
+app.get('/get-history', (req, res) => {
+    res.json(historyData);
+});
+
+app.get('/', (req, res) => {
+    res.sendFile('template/show-data.html', { root: import.meta.dirname });
+});
+
+
+// Jalankan server
+app.listen(port, () => {
+    console.log(`Server berjalan di http://localhost:${port}`);
+});
