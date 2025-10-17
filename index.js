@@ -1,8 +1,15 @@
 import axios from 'axios';
 
+import fs from 'fs';
+
+// Load user data from JSON file
+const userData = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+
+
+
 // --- Konfigurasi ---
 const ROBLOX_API_URL = "https://presence.roblox.com/v1/presence/users";
-const USER_ID_TO_MONITOR = [9559045119, 7953014316]; // Ganti dengan User ID yang ingin kamu monitor
+const USER_ID_TO_MONITOR = userData.map(user => user.userId); // Ganti dengan User ID yang ingin kamu monitor
 const CHECK_INTERVAL_MS = 60000; // Cek setiap 60 detik (1 menit)
 const USER_PRESENCE_TYPE = {
     0: "Offline",
@@ -28,9 +35,9 @@ const checkUserPresence = async () => {
         userPresences.forEach(userPresence => {
             if (USER_ID_TO_MONITOR.includes(userPresence.userId)) {
                 let status = USER_PRESENCE_TYPE[userPresence.userPresenceType] || 'Unknown';
-                console.log(`User ${userPresence.userId} sedang ${status}`);
+                console.log(`User ${userData.find(user => user.userId === userPresence.userId).username} sedang ${status}`);
             } else {
-                console.log(`User ${userPresence.userId} tidak ditemukan dalam response`);
+                console.log(`User ${userData.find(user => user.userId === userPresence.userId).username} tidak ditemukan dalam response`);
             }
         });
 
