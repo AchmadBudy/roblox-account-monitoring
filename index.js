@@ -1,11 +1,38 @@
 import axios from 'axios';
-
 import fs from 'fs';
 
 // Load user data from JSON file
-const userData = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+const userData = JSON.parse(fs.readFileSync('storage/users.json', 'utf8'));
 
+// create storage\history.json file if not exist
+if (!fs.existsSync('storage/history.json')) {
+    fs.writeFileSync('storage/history.json', '[]');
+}
 
+const saveHistory = (data) => {
+    // Cari pengguna berdasarkan userId
+    const user = historyData.find(u => u.userId === data.userId);
+    if (user) {
+        // Jika pengguna ditemukan, tambahkan data ke history
+        user.history.push({
+            timestamp: data.timestamp,
+            status: data.status
+        });
+    } else {
+        // Jika pengguna tidak ditemukan, buat entri baru
+        historyData.push({
+            userId: data.userId,
+            username: data.username,
+            history: [{
+                timestamp: data.timestamp,
+                status: data.status
+            }]
+        });
+    }
+    // Tulis data ke file JSON
+    fs.writeFileSync('storage/history.json', JSON.stringify(historyData, null, 2));
+};
+const historyData = JSON.parse(fs.readFileSync('storage/history.json', 'utf8'));
 
 // --- Konfigurasi ---
 const ROBLOX_API_URL = "https://presence.roblox.com/v1/presence/users";
@@ -35,9 +62,14 @@ const checkUserPresence = async () => {
         userPresences.forEach(userPresence => {
             if (USER_ID_TO_MONITOR.includes(userPresence.userId)) {
                 let status = USER_PRESENCE_TYPE[userPresence.userPresenceType] || 'Unknown';
-                console.log(`User ${userData.find(user => user.userId === userPresence.userId).username} sedang ${status}`);
-            } else {
-                console.log(`User ${userData.find(user => user.userId === userPresence.userId).username} tidak ditemukan dalam response`);
+                const user = userData.find(u => u.userId === userPresence.userId);
+                const username = user ? user.username : 'Unknown';
+                saveHistory({
+                    userId: userPresence.userId,
+                    username: username,
+                    status: status,
+                    timestamp: new Date().toISOString()
+                });
             }
         });
 
