@@ -38,7 +38,7 @@ const historyData = JSON.parse(fs.readFileSync('storage/history.json', 'utf8'));
 // --- Konfigurasi ---
 const ROBLOX_API_URL = "https://presence.roblox.com/v1/presence/users";
 const USER_ID_TO_MONITOR = userData.map(user => user.userId); // Ganti dengan User ID yang ingin kamu monitor
-const CHECK_INTERVAL_MS = 60000; // Cek setiap 60 detik (1 menit)
+const CHECK_INTERVAL_MS = 300000; // Cek setiap 300 detik (5 menit)
 const USER_PRESENCE_TYPE = {
     0: "Offline",
     1: "Online",
