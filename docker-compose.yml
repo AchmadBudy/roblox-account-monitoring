@@ -1,0 +1,12 @@
+services:
+  monitoring-app:
+    build: .
+    container_name: roblox-monitoring
+    ports:
+      - 3000:3000
+    volumes:
+      # Mount storage directory untuk persistensi data
+      - ./storage:/app/storage
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
